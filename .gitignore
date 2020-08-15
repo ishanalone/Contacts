@@ -1,0 +1,9 @@
+Pods/
+node_modules/
+package-lock.json
+Podfile.lock
+Contacts.xcworkspace/
+.DS_Store
+*.xcuserdata
+build/
+docs/
