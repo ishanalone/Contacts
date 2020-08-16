@@ -6,7 +6,11 @@ target 'Contacts' do
   use_frameworks!
 
   # Pods for Contacts
-
+  pod 'SnapKit', '~> 5.0.0'
+  pod 'Alamofire', '~> 5.2'
+  pod 'Kingfisher', '~> 5.0'
+  pod 'CountryPickerView'
+  pod 'IQKeyboardManagerSwift'
   target 'ContactsTests' do
     inherit! :search_paths
     # Pods for testing

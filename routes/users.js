@@ -13,27 +13,24 @@ const paginate = ({ page, pageSize }) => {
 };
 
 /* GET users listing. */
-router.get('/search', function(req, res, next) {
-  var offset = req.query.page
-  var limit = req.query.limit
-  User.findAll({
-    where : {
-      email_id : req.query.emailId
-    },
-    ...paginate({ offset, limit }),
-  })
+router.get('/list', function(req, res, next) {
+  User.findAll()
   .then(function(data){
-    res.json(data)
-}).catch(error => {
+    res.status(200).json({"code" : 200, "contactList" : data})
+  })
+  .catch(error => {
     res.json(error)
-});
+  });
 });
 
-router.post('/update', (req, res,next) => {
+router.post('/update', (req, res, next) => {
   let body = req.body;
 
   User.update({
     email_id : body.emailId,
+    name : body.name,
+    country_code : body.countryCode,
+    phone_number : body.phoneNumber,
     updated_at : Date.now()
   },{
     where : {
@@ -41,23 +38,24 @@ router.post('/update', (req, res,next) => {
     }
   })
   .then(function(data){
-    res.json(data)
-}).catch(error => {
+    res.status(200).json({"code" : 200, success : true})
+  })
+  .catch(error => {
     res.json(error)
-})
+  })
 })
 
 
 router.post('/add', (req, res, next) => {
   let body = req.body;
-  console.log("Swapnil Sir")
   User.create ({ 
     email_id : body.emailId,
     name : body.name,
-    country_code : body.countryCode
+    country_code : body.countryCode,
+    phone_number : body.phoneNumber
   })
   .then(function(data){
-    res.json(data)
+    res.status(200).json({"code" : 200, success : true})
 }).catch(error => {
     res.json(error)
 })
