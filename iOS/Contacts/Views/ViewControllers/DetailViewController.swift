@@ -8,6 +8,8 @@
 
 import UIKit
 import MessageUI
+import Toast_Swift
+
 
 class DetailViewController: UIViewController {
 
@@ -22,13 +24,15 @@ class DetailViewController: UIViewController {
         super.viewDidLoad()
         detailTable.delegate = self
         detailTable.dataSource = self
-        
+        let showToast : ((String) -> ())? = { (message) in
+            self.showToast(with: message)
+        }
         if let contact = contact{
-            viewModel = DetailViewModel(with: contact, delegate: self)
+            viewModel = DetailViewModel(with: contact, delegate: self, showToast: showToast)
             barButton.title = "Edit"
         }else{
             contact = ContactList()
-            viewModel = DetailViewModel(with: contact!, delegate: self)
+            viewModel = DetailViewModel(with: contact!, delegate: self, showToast: showToast)
             viewModel?.viewMode = .add
             barButton.title = "Save"
         }
@@ -47,9 +51,9 @@ class DetailViewController: UIViewController {
                 self.view.activityStartAnimating(activityColor: Constants.activityBackgroundColor, backgroundColor: .lightGray)
                 viewModel.updateContact { (success) in
                     if success{
-                        // Toast
+                        self.showToast(with: "Contact saved successfuly")
                     }else {
-                        // Toast
+                        self.showToast(with: "Contact can't be saved at this time")
                     }
                     self.view.activityStopAnimating()
                     viewModel.viewMode = .viewOnly
@@ -60,9 +64,9 @@ class DetailViewController: UIViewController {
                 self.view.activityStartAnimating(activityColor: Constants.activityBackgroundColor, backgroundColor: .lightGray)
                 viewModel.addContact { (success) in
                     if success{
-                        // Toast
+                        self.showToast(with: "Contact added successfuly")
                     }else {
-                        // Toast
+                        self.showToast(with: "Contact can't be added at this time")
                     }
                     self.view.activityStopAnimating()
                     self.dismiss(animated: true) {
@@ -94,6 +98,10 @@ class DetailViewController: UIViewController {
                 self.dismiss(animated: true, completion: nil)
             }
         }
+    }
+    
+    func showToast(with message:String)  {
+        self.view.makeToast(message, duration: 3.0, position: .bottom)
     }
     /*
     // MARK: - Navigation

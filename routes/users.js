@@ -19,7 +19,7 @@ router.get('/list', function(req, res, next) {
     res.status(200).json({"code" : 200, "contactList" : data})
   })
   .catch(error => {
-    res.json(error)
+    res.status(500).json({"code" : 500 ,"error" : "Server Internal Error"})
   });
 });
 
@@ -41,7 +41,7 @@ router.post('/update', (req, res, next) => {
     res.status(200).json({"code" : 200, success : true})
   })
   .catch(error => {
-    res.json(error)
+    res.status(500).json({"code" : 500 ,"error" : "Server Internal Error"})
   })
 })
 
@@ -57,7 +57,7 @@ router.post('/add', (req, res, next) => {
   .then(function(data){
     res.status(200).json({"code" : 200, success : true})
 }).catch(error => {
-    res.json(error)
+  res.status(500).json({"code" : 500 ,"error" : "Server Internal Error"})
 })
 })
 

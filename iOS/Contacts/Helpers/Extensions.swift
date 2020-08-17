@@ -45,30 +45,7 @@ extension UIView {
 
 
 
-extension UIImageView {
-    func downloaded(from url: URL) {  // for swift 4.2 syntax just use ===> mode: UIView.ContentMode
-        let cache = URLCache.shared
-        let request = URLRequest.init(url: url)
-        
-        DispatchQueue.global(qos: .userInitiated).async {
-            if let data = cache.cachedResponse(for: request)?.data, let image = UIImage.init(data: data) {
-                DispatchQueue.main.async {
-                    self.image = image
-                }
-            } else {
-                URLSession.shared.dataTask(with: request) { (data, response, error) in
-                    if let data = data, let image = UIImage.init(data: data) {
-                        let cachedData = CachedURLResponse.init(response: response!, data: data)
-                        cache.storeCachedResponse(cachedData, for: request)
-                        DispatchQueue.main.async {
-                            self.image = image
-                        }
-                    }
-                }.resume()
-            }
-        }
-    }
-}
+
 
 extension UIView{
     func activityStartAnimating(activityColor: UIColor, backgroundColor: UIColor) {
@@ -118,50 +95,23 @@ extension UICollectionViewCell {
     }
 }
 
-extension Date {
-
-    func timeAgoSinceDate() -> String {
-        
-        let fromDate = self
-        let toDate = Date()
-
-        if let interval = Calendar.current.dateComponents([.year], from: fromDate, to: toDate).year, interval > 0  {
-
-            return interval == 1 ? "\(interval)" + " " + "yr" : "\(interval)" + " " + "yr"
-        }
-
-  
-        if let interval = Calendar.current.dateComponents([.month], from: fromDate, to: toDate).month, interval > 0  {
-
-            return interval == 1 ? "\(interval)" + " " + "mo" : "\(interval)" + " " + "mo"
-        }
-
-  
-        if let interval = Calendar.current.dateComponents([.day], from: fromDate, to: toDate).day, interval > 0  {
-
-            return interval == 1 ? "\(interval)" + " " + "day" : "\(interval)" + " " + "days"
-        }
-
-     
-        if let interval = Calendar.current.dateComponents([.hour], from: fromDate, to: toDate).hour, interval > 0 {
-
-            return interval == 1 ? "\(interval)" + " " + "hr" : "\(interval)" + " " + "hr"
-        }
-
-     
-        if let interval = Calendar.current.dateComponents([.minute], from: fromDate, to: toDate).minute, interval > 0 {
-
-            return interval == 1 ? "\(interval)" + " " + "min" : "\(interval)" + " " + "min"
-        }
-
-        return "just now"
-    }
-}
-
 extension String {
-    func heightWithConstrainedWidth(width: CGFloat, font: UIFont) -> CGFloat {
-        let constraintRect = CGSize(width: width, height: .greatestFiniteMagnitude)
-        let boundingBox = self.boundingRect(with: constraintRect, options: [.usesLineFragmentOrigin, .usesFontLeading], attributes: [NSAttributedString.Key.font: font], context: nil)
-        return boundingBox.height
-    }
+   var isValidEmail: Bool {
+      let regularExpressionForEmail = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
+      let testEmail = NSPredicate(format:"SELF MATCHES %@", regularExpressionForEmail)
+      return testEmail.evaluate(with: self)
+   }
+   var isValidPhone: Bool {
+      do {
+          let detector = try NSDataDetector(types: NSTextCheckingResult.CheckingType.phoneNumber.rawValue)
+          let matches = detector.matches(in: self, options: [], range: NSMakeRange(0, self.count))
+          if let res = matches.first {
+              return res.resultType == .phoneNumber && res.range.location == 0 && res.range.length == self.count
+          } else {
+              return false
+          }
+      } catch {
+          return false
+      }
+   }
 }

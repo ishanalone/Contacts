@@ -9,6 +9,7 @@
 import Foundation
 import UIKit
 import CountryPickerView
+import CoreData
 
 enum RowType : String {
     case name = "Name"
@@ -30,12 +31,15 @@ class DetailViewModel {
     private var contact : ContactList
     private var sectionArray : [RowType] = [.name, .email, .phone]
     private var delegate : MailComposerDelegate?
+    private var showToast : ((String) -> ())?
+    
     var viewMode : ViewMode = .viewOnly
     let cp = CountryPickerView(frame: CGRect(x: 0, y: 0, width: 120, height: 20))
     
-    init(with contact : ContactList, delegate : MailComposerDelegate) {
+    init(with contact : ContactList, delegate : MailComposerDelegate, showToast : ((String) -> ())? = nil) {
         self.contact = contact
         self.delegate = delegate
+        self.showToast = showToast
     }
     
     
@@ -100,17 +104,24 @@ class DetailViewModel {
         if !text.isEmpty{
             let pasteboard = UIPasteboard.general
             pasteboard.string = text
+            if let showToast = showToast{
+                showToast("Copied")
+            }
         }
         
     }
     
     private func callNumber(phoneNumber: String) {
-        guard let url = URL(string: "telprompt://\(phoneNumber)"),
-            UIApplication.shared.canOpenURL(url) else {
-                
-            return
+        guard let url = URL(string: "telprompt://\(phoneNumber)") else {return}
+        if UIApplication.shared.canOpenURL(url){
+            UIApplication.shared.open(url, options: [:], completionHandler: nil)
+        }else{
+            if let showToast = showToast{
+                showToast("Can's call from this device")
+            }
         }
-        UIApplication.shared.open(url, options: [:], completionHandler: nil)
+        
+        writeToCD(self.contact)
     }
     
     private func sendMail(_ to:String){
@@ -134,6 +145,10 @@ class DetailViewModel {
                     self.contact.name = str
                 }
             }
+            decoration = { (textfield) in
+                textfield.keyboardType = .default
+                return textfield
+            }
         case .email:
             value = contact.email_id
             validate = {(runningStr) -> Bool in
@@ -143,6 +158,10 @@ class DetailViewModel {
                 if isValid{
                     self.contact.email_id = str
                 }
+            }
+            decoration = { (textfield) in
+                textfield.keyboardType = .emailAddress
+                return textfield
             }
         case .phone:
             value = contact.phone_number
@@ -159,6 +178,7 @@ class DetailViewModel {
                 self.cp.font = UIFont.systemFont(ofSize: 20)
                 textfield.leftView = self.cp
                 textfield.leftViewMode = .always
+                textfield.keyboardType = .phonePad
                 return textfield
             }
         }
@@ -170,11 +190,11 @@ class DetailViewModel {
     }
     
     func validateEmail(_ str:String?) -> Bool {
-        return true
+        return str?.isValidEmail ?? false
     }
     
     func validatePhnNumber(_ str:String?) -> Bool {
-        return true
+        return str?.isValidPhone ?? false
     }
 }
 
@@ -208,5 +228,26 @@ extension DetailViewModel {
                 completionHandler(false)
             }
         }
+    }
+}
+
+extension DetailViewModel {
+   
+    func writeToCD(_ contactModel:ContactList) {
+        let predicate = NSPredicate(format: "id == %@", contactModel.id!)
+        var contact : Contact?
+        if let tempContact = Container.shared.fetchData(of: Contact.self, with: predicate){
+            if tempContact.count > 0{
+                contact = (tempContact[0] as! Contact)
+                contact = contactModel.managedObject(contact!)
+                contact!.lastUsed = Date()
+            }else{
+                contact = contactModel.managedObject()
+                contact!.lastUsed = Date()
+            }
+        }else{
+            contact = contactModel.managedObject()
+        }
+        Container.shared.save()
     }
 }

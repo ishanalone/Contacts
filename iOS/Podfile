@@ -10,6 +10,7 @@ target 'Contacts' do
   pod 'Alamofire', '~> 5.2'
   pod 'Kingfisher', '~> 5.0'
   pod 'CountryPickerView'
+  pod 'Toast-Swift', '~> 5.0.1'
   pod 'IQKeyboardManagerSwift'
   target 'ContactsTests' do
     inherit! :search_paths

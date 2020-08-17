@@ -1,6 +1,6 @@
 {
   "name": "contacts",
-  "version": "0.0.0",
+  "version": "12.16.1",
   "private": true,
   "scripts": {
     "start": "node ./bin/www"
@@ -15,5 +15,8 @@
     "pg": "^8.3.0",
     "pg-hstore": "^2.3.3",
     "sequelize": "^6.3.4"
+  },
+  "engines": {
+    "node": "10.x"
   }
 }

@@ -11,6 +11,7 @@ import Foundation
 enum SortType : String {
     case name = "Name"
     case email = "Email"
+    case lastUpdate = "Last update"
 }
 
 enum SortOrder {
@@ -34,7 +35,7 @@ class ListViewModel {
             self.sort()
         }
     }
-    private var sortTypes : [SortType] = [.name,.email]
+    private var sortTypes : [SortType] = [.name,.email,.lastUpdate]
     
     func getData() {
         APIClient.getContactList { (response) in
@@ -60,13 +61,19 @@ class ListViewModel {
                     return contact1.name ?? "" > contact2.name ?? ""
                 }
                 
-            }else{
+            }else if sortType == .email{
                 if sortOrder == .ascending{
                     return contact1.email_id ?? "" < contact2.email_id ?? ""
                 }else{
                     return contact1.email_id ?? "" > contact2.email_id ?? ""
                 }
                 
+            }else{
+                if sortOrder == .ascending{
+                    return contact1.getUpdateDate()! < contact2.getUpdateDate()!
+                }else{
+                    return contact1.getUpdateDate()! > contact2.getUpdateDate()!
+                }
             }
         }
         self.sortedData.value = arr
