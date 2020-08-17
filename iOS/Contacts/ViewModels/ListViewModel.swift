@@ -47,6 +47,7 @@ class ListViewModel {
                 }
             case .failure(let error):
                 print(error)
+                self.sortedData.value = []
             }
         }
     }
